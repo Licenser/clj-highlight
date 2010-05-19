@@ -13,13 +13,13 @@
 	  (cond
 ;	   (prn token kind) nil
 	   (nil? new-state) 
-	    (conj (token-seq* (subs s (count token)) token-def (get token-def state) state states) [kind token])
+	    (conj (token-seq* (subs s (count token)) token-def (get token-def state) state states) [kind token states])
 	    (= new-state :pop)
 	    (let [states (pop states)
 		  state (first states)]
-	      (conj (token-seq* (subs s (count token)) token-def (get token-def state) states states) [kind token]))
+	      (conj (token-seq* (subs s (count token)) token-def (get token-def state) states states) [kind token states]))
 	    :else
-	    (conj (token-seq* (subs s (count token)) token-def (get token-def new-state) new-state (conj states new-state)) [kind token]))
+	    (conj (token-seq* (subs s (count token)) token-def (get token-def new-state) new-state (conj states new-state)) [kind token states]))
 	  (token-seq* s token-def defs state states)))))))
 
 
@@ -40,7 +40,7 @@
 			   (if-let [num (re-find number-re)]
 			     num
 			     nil))
-			 (if-let [num (re-find #"^\d+(?:(?:/\d+)|(?:(?:.\d*)?(?:e[+-]\d+)?))" s)]
+			 (if-let [num (re-find #"^\d+(?:(?:/\d+)|(?:(?:\.\d*)?(?:e[+-]\d+)?))" s)]
 			   num
 			   nil)))]
   (def clj-syntax
@@ -63,10 +63,10 @@
 (defn mangle-tokens [kind mangle-fn tokenizer]
   (fn mangle-tokens*
     ([string state]
-       (map (fn [[k t]]
-	 (if (= k kind)
-	   (mangle-fn k t)
-	   [k t]))
+       (map (fn [[k t s]]
+	 (if (or (nil? kind) (= k kind))
+	   (mangle-fn k t s)
+	   [k t s]))
 	    (tokenizer string state)))
     ([string]
        (mangle-tokens* string :initial))))
@@ -80,5 +80,5 @@
 	  ([string]
 	  (tokenizer* string :initial)))]
     (if-let [keywords (:keywords syntax)]
-      (mangle-tokens :identifyer (fn [k t] (if (keywords t) [:keyword t] [k t])) tkn)
+      (mangle-tokens :identifyer (fn [k t s] (if (keywords t) [:keyword t s] [k t s])) tkn)
       tkn)))
