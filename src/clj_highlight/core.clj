@@ -1,4 +1,5 @@
 (ns clj-highlight.core
+;  (:use hiccup.core)
   (:import java.util.Scanner))
 
 
@@ -49,12 +50,12 @@
 "true", "false", "*", "*1", "*2", "*3", "*agent*", "*clojure-version*", "*command-line-args*", "*compile-files*", "*compile-path*", "*e", "*err*", "*file*", "*flush-on-newline*", "*in*", "*ns*", "*out*", "*print-dup*", "*print-length*", "*print-level*", "*print-meta*", "*print-readably*", "*read-eval*", "*warn-on-reflection*"}
 	:initial
 	[
-	 [(re-token identifier*) :identifyer]
+	 [(re-token identifier*) :identifier]
 	 [(re-token symbol*) :symbol]
 	 [(re-token #"\"(?:\\.|[^\"])*\"") :string]
 	 [(re-token #"[\s,\n]+") :space]
-	 [(re-token #"[\(\)\[\]{}]") :pren]
-	 [(re-token #"[\(\)\[\]{}]") :pren]
+	 [(re-token #"[\(\)\[\]{}]") :paren]
+	 [(re-token #"[\(\)\[\]{}]") :paren]
 	 [(re-token #";.*\n?") :comment]
 	 [(re-token #"\\.") :string]
 	 [(re-token #"[#.'`]") :operator]
@@ -73,7 +74,6 @@
     ([string]
        (mangle-tokens* string :initial))))
 
-
 (defn tokenizer [syntax]
   (let [tkn
     	(fn tokenizer*
@@ -82,5 +82,46 @@
 	  ([string]
 	  (tokenizer* string :initial)))]
     (if-let [keywords (:keywords syntax)]
-      (mangle-tokens :identifyer (fn [k t s] (if (keywords t) [:keyword t s] [k t s])) tkn)
+      (mangle-tokens :identifier (fn [k t s] (if (keywords t) [:keyword t s] [k t s])) tkn)
       tkn)))
+
+(def default-stype-map
+     {:identifier nil
+      :keywod     "r"
+      :symbol     "s"
+      :string     "dl"
+      :paren      "of"
+      :comment    "c"
+      :operator   "of"
+      :number     "i"
+      })
+
+
+
+(defn htmlify-tokens [tokenizer style-map]
+  (mangle-tokens 
+   nil
+   (fn [k t s]
+     (if-let [c (style-map k)]
+       [:span {:class c} t]
+       t))
+     tokenizer))
+
+
+(defn- htmlify-tokens [style-map tokens last last-cl]
+  (lazy-seq 
+   (if (empty? tokens)
+     (list (if last-cl [:span {:class last-cl} last] last))
+     (let [[k t _] (first tokens)
+	   cl (style-map k)]
+       (cond
+	(nil? last)
+	(htmlify-tokens style-map (rest tokens) t cl)
+	(= last-cl cl)
+	(htmlify-tokens style-map (rest tokens) (str last t) cl)
+	:else
+	(conj (htmlify-tokens style-map (rest tokens) t cl) (if last-cl [:span {:class last-cl} last] last)))))))
+
+  
+(defn to-html [style-map root-class tokens]
+  (vec (concat [:span {:class root-class}] (htmlify-tokens style-map tokens nil nil))))
