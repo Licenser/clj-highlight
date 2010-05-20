@@ -5,7 +5,7 @@
 (defn- escape-html
   "Change special characters into HTML character entities."
   [text]
-  (.. #^String (as-str text)
+  (.. #^String (str text)
     (replace "&"  "&amp;")
     (replace "<"  "&lt;")
     (replace ">"  "&gt;")
@@ -37,8 +37,12 @@
 	(conj (hiccupify-tokens style-map (rest tokens) t cl) (if last-cl [:span {:class last-cl} last] last)))))))
 
   
-(defn to-hiccup [style-map root-class tokens]
-  (vec (concat [:span {:class root-class}] (hiccupify-tokens style-map tokens nil nil))))
+(defn to-hiccup 
+  ([style-map root-class]
+     (fn [tokens]
+       (vec (concat [:span {:class root-class}] (hiccupify-tokens style-map tokens nil nil)))))
+  ([]
+     (to-hiccup default-stype-map "code" )))
 
 
 (def newline-to-br-mangler 
@@ -51,4 +55,4 @@
      (new-mangler
       :space
       (fn [k t s]
-	[k (escape-html) s])))
+	[k (escape-html t) s])))

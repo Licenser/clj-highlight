@@ -11,7 +11,7 @@
 	  '()
 	  (if-let [result (matcher s states token-def)]
 	    (let [[token states token-def defs] result]
-	      (conj (token-seq* (subs s (count token)) token-def defs states) token))
+	      (conj (token-seq* (subs s (count (fnext token))) token-def defs states) token))
 	    (token-seq* s token-def defs states)))))))
 
 (defn tokenizer [syntax]
