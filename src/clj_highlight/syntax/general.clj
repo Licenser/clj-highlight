@@ -16,7 +16,7 @@
    :else
    (fn [string idx states token-def]
      (if-let [token (matcher string idx)]
-       (let [states (conj new-state states)]
+       (let [states (cons new-state states)]
 	 [[kind token (if info-fn (info-fn kind token states) {:state states})] states token-def ((first states) token-def)])))))
 
 
