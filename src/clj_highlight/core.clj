@@ -8,14 +8,14 @@
     [[:error (str (first s))  {:state states}] states token-def (get token-def (first states))]
     (let [[matcher & defs] defs] 
       (if-let [result (matcher s idx states token-def)]
-	[result matcher]
+	result
 	(recur s idx token-def defs states)))))
 
 (defn- token-seq* [s idx size token-def defs states] 
   (lazy-seq
    (if (= idx size)
      '()
-     (let [[[token states token-def defs] matcher] (next-token s idx token-def defs states)]
+     (let [[token states token-def defs] (next-token s idx token-def defs states)]
        (cons token (token-seq* s (+ idx (count (fnext token))) size token-def defs states))))))
 
 (defn tokenizer 
