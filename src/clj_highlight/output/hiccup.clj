@@ -34,7 +34,7 @@
 	(= last-cl cl)
 	(hiccupify-tokens style-map (rest tokens) (str last t) cl)
 	:else
-	(conj (hiccupify-tokens style-map (rest tokens) t cl) (if last-cl [:span {:class last-cl} last] last)))))))
+	(cons (if last-cl [:span {:class last-cl} last] last) (hiccupify-tokens style-map (rest tokens) t cl)))))))
 
   
 (defn to-hiccup 
