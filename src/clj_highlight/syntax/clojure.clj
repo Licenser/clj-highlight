@@ -8,17 +8,6 @@
 (let [basic-identifier* "[a-zA-Z$%$*_+!?&<>=-][a-zA-Z0-9§$&*=+!_?<>-]*"
       identifier* (str basic-identifier*"(?:\\."basic-identifier*")*+(?:/"basic-identifier*")?+")
       symbol* (str "::?"identifier*"\\.?+")
-      #^java.util.regex.Pattern valid-chars
-      #"(?i)^[a-z0-9!$&*-_=+<>/.?%][a-z0-9!$&*-_=+<>/.?]*$"
-      ident-matcher (fn clj-id? [#^String s #^Integer idx]
-		      (let [s (subs s idx)]
-			(if (and (not (zero? (.length s)))
-				 (.. valid-chars (matcher s) matches)
-				 (let [slash (.indexOf s (int \/))]
-				   (or (== (int -1) slash)
-				       (== (int -1) (.indexOf s (int \/) (inc slash))))))
-			  true
-			  false)))
       number-matcher (fn [s idx]
 		       (let [s (subs s idx)]
 			 (if-let [p (re-find #"^(\d+)r" s)]
