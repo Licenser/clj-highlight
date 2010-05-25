@@ -5,7 +5,7 @@
 
 (defn- next-token [s idx token-def defs states]
   (if (empty? defs)
-    [[:error (str (first s))  {:state states}] states token-def (get token-def (first states))]
+    [[:error (str (first (subs s idx)))  {:state states :index idx}] states token-def (get token-def (first states))]
     (let [[matcher & defs] defs] 
       (if-let [result (matcher s idx states token-def)]
 	result

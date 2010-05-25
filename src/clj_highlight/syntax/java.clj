@@ -82,8 +82,8 @@
      :string1 (list
 	       (re-token #"[^\"\\]+" :string)
 	       (token (str-matcher "\"") :string :pop)
-	       (re-token #"\\(?:[bfnrtv\n\"\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))
+	       (re-token #"\\(?:[bfnrtv\n\"'\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))
      :string2 (list
 	       (re-token #"[^'\\]+" :string)
 	       (token (str-matcher "'") :string :pop)
-	       (re-token #"\\(?:[bfnrtv\n'\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))})
+	       (re-token #"\\(?:[bfnrtv\n\"'\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))})
