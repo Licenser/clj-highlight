@@ -2,6 +2,40 @@
 
 (def didgets "0123456789abcdefghijklmnopqrstuvwxyz")
 
+(declare *do-profile*)
+
+
+(def *profile* (agent {}))
+
+(defn- prof [a idx time]
+  (update-in a [idx] conj time))
+
+(defn report-profileing [profiling]
+  (sort-by second (map (fn [[idx times]] 
+	 (let [cnt (count times)]
+	   [idx cnt (reduce + times) (apply min times) (apply max times)])) profiling)))
+
+(defmacro benchmark 
+  ([idx form]
+     (if *do-profile*
+       `(let [t0# (. System currentTimeMillis)
+	      r# ~form
+	      t1# (. System currentTimeMillis)]
+	  (send *profile* prof ~idx (- t1# t0#))
+	  r#)))
+  ([form] 
+     (if *do-profile*
+       `(let [t0# (. System currentTimeMillis)
+	      r# ~form
+	      t1# (. System currentTimeMillis)]
+	  (send *profile* prof (first '~form) (- t1# t0#))
+	  r#))))
+
+(defmacro profiled [form]
+  `(binding [*do-profile* true]
+     ~form))
+	   
+
 (defn token [matcher kind & [new-state info-fn]]
   (cond
    (nil? new-state)
@@ -24,6 +58,6 @@
   (let [pattern (re-pattern (str "^(?:" re ")"))]
     (token 
      (fn [string idx]
-       (re-find pattern (subs string idx)))
+       (benchmark pattern (re-find pattern (subs string idx))))
      kind
      new-state)))

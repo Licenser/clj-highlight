@@ -46,12 +46,12 @@
 (def  java-default-tokens
      (list
       (re-token #"\s+|\n" :space)
-      (re-token #"//[^\n\\]*(?:\\.[^\n\\]*)*" :comment)
-      (re-token #"/\*(?s:.*?)\*/" :comment)
       (re-token #"\.(?!\d)|[,?:()\[\]{};]|--|\+\+|&&|\|\||\*\*=?|[-+*\/%^~&|<>=!]=?|<<<?=?|>>>?=?" :opperator)
       java-number-token
       (token (str-matcher "\"") :string :string1)
       (token (str-matcher "'") :string :string2)
+      (re-token #"//[^\n\\]*(?:\\.[^\n\\]*)*" :comment)
+      (re-token #"/\*(?s:.*?)\*/" :comment)
       (re-token #"@[a-zA-Z_][A-Za-z_0-9]*" :annotation)
       ))
 
@@ -67,11 +67,11 @@
 			(re-token #"[{;]" :opperator)
 			(java-ident-token :ident)))
       :include 
-      (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*(?:\.[a-zA-Z_][A-Za-z_0-9]*)*(?:\*)?" :include :pop))
+      (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*+(?:\.[a-zA-Z_][A-Za-z_0-9]*+)*+(?:\.\*)?" :include))
 	      java-sub-tokens
 	      java-default-tokens)
       :namespace 
-      (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*(?:\.[a-zA-Z_][A-Za-z_0-9]*)*(?:\*)?" :namespace :pop))
+      (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*+(?:\.[a-zA-Z_][A-Za-z_0-9]*+)*+" :namespace))
 	      java-sub-tokens
 	      java-default-tokens)
       :class 
