@@ -14,7 +14,7 @@
 			   (let [[prefix precision] p
 				 precision (Integer/parseInt precision)
 				 number-re (re-pattern (str "^" prefix "[" (subs didgets 0 precision) "]++"))]
-			     (if-let [num (re-find number-re)]
+			     (if-let [num (re-find number-re s)]
 			       num
 			       nil))
 			   (if-let [num (re-find #"^\d+(?:(?:/\d+)|(?:(?:\.\d*)?(?:e[+-]\d+)?))" s)]
