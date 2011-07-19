@@ -2,8 +2,7 @@
 
 (def didgets "0123456789abcdefghijklmnopqrstuvwxyz")
 
-(declare *do-profile*)
-
+(def *do-profile* false)
 
 (def *profile* (agent {}))
 
