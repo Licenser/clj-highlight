@@ -29,7 +29,7 @@
 	 (re-token #"[\s\n,]++" :space)
 ;							string idx states token-def))
 ;	 (fn paren-token [string idx states token-def] (
-	 (re-token #"[\(\)\[\]{}]" :paren)
+	 (re-token #"[()\[\]{}]" :paren)
 ;							string idx states token-def))
 ;	 (fn ident-token [string idx states token-def] (
 	 (re-token identifier* :identifier) 

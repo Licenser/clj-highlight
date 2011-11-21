@@ -21,14 +21,16 @@
 	      r# ~form
 	      t1# (. System currentTimeMillis)]
 	  (send *profile* prof ~idx (- t1# t0#))
-	  r#)))
+	  r#)
+       `~form))
   ([form] 
      (if *do-profile*
        `(let [t0# (. System currentTimeMillis)
 	      r# ~form
 	      t1# (. System currentTimeMillis)]
 	  (send *profile* prof (first '~form) (- t1# t0#))
-	  r#))))
+	  r#)
+       `~form)))
 
 (defmacro profiled [form]
   `(binding [*do-profile* true]
@@ -57,6 +59,6 @@
   (let [pattern (re-pattern (str "^(?:" re ")"))]
     (token 
      (fn [string idx]
-       (benchmark pattern (re-find pattern (subs string idx))))
+       (re-find pattern (subs string idx)))
      kind
      new-state)))

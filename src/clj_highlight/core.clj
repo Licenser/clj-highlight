@@ -18,7 +18,7 @@
      (let [[token states token-def defs] (next-token s idx token-def defs states)]
        (cons token (token-seq* s (+ idx (count (fnext token))) size token-def defs states))))))
 
-(defn tokenizer 
+(defn tokenizer
   "Creates a tokenizer for a given syntax definition."
   [syntax]
   (let [tkn
