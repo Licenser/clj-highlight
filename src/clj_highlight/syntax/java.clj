@@ -4,7 +4,7 @@
 (def java-keywords #{})
 
 (defn str-matcher [token]
-  (fn [string idx]
+  (fn [^String string idx]
     (if (.startsWith string token idx)
       token)))
 
@@ -29,7 +29,6 @@
 	  token
 	  [[default-kind token {:state states}] states token-def ((first states) token-def)])))))
 
-
 (defn java-number-token [string idx states token-def]
      (let [s (subs string idx)]
        (if (re-find #"^[\d.]" s)
@@ -50,40 +49,39 @@
       java-number-token
       (token (str-matcher "\"") :string :string1)
       (token (str-matcher "'") :string :string2)
-      (re-token #"//[^\n\\]*(?:\\.[^\n\\]*)*" :comment)
-      (re-token #"/\*(?s:.*?)\*/" :comment)
-      (re-token #"@[a-zA-Z_][A-Za-z_0-9]*" :annotation)
-      ))
+      (re-token #"/\*(?s:.*?)\*/|//[^\n\\]*(?:\\.[^\n\\]*)*" :comment)
+      (re-token #"@[a-zA-Z_][A-Za-z_0-9]*" :annotation)))
 
 (def java-sub-tokens
-     (list (token (str-matcher ";") :opperator :pop)
-	   (token (str-matcher "{") :opperator :pop)
-	   (java-ident-token :ident)))
+  (list
+   (re-token #"[;{]"  :opperator :pop)
+   (java-ident-token :ident)))
 
-(def java-syntax
-     {:keywords java-keywords
-      :initial (concat java-default-tokens 
-		       (list
-			(re-token #"[{;]" :opperator)
-			(java-ident-token :ident)))
-      :include 
-      (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*+(?:\.[a-zA-Z_][A-Za-z_0-9]*+)*+(?:\.\*)?" :include))
-	      java-sub-tokens
-	      java-default-tokens)
-      :namespace 
-      (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*+(?:\.[a-zA-Z_][A-Za-z_0-9]*+)*+" :namespace))
-	      java-sub-tokens
-	      java-default-tokens)
-      :class 
-      (concat (list 
-	       (re-token #"[a-zA-Z_][A-Za-z_0-9]*" :class))
-	      java-sub-tokens
-	      java-default-tokens)
-     :string1 (list
-	       (re-token #"[^\"\\]+" :string)
-	       (token (str-matcher "\"") :string :pop)
-	       (re-token #"\\(?:[bfnrtv\n\"'\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))
-     :string2 (list
-	       (re-token #"[^'\\]+" :string)
-	       (token (str-matcher "'") :string :pop)
-	       (re-token #"\\(?:[bfnrtv\n\"'\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))})
+(def syntax
+  {:keywords java-keywords
+   :syntax-name "Java"
+   :initial (concat java-default-tokens 
+                    (list
+                     (re-token #"[{;]" :opperator)
+                     (java-ident-token :ident)))
+   :include 
+   (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*+(?:\.[a-zA-Z_][A-Za-z_0-9]*+)*+(?:\.\*)?" :include))
+           java-sub-tokens
+           java-default-tokens)
+   :namespace 
+   (concat (list (re-token #"[a-zA-Z_][A-Za-z_0-9]*+(?:\.[a-zA-Z_][A-Za-z_0-9]*+)*+" :namespace))
+           java-sub-tokens
+           java-default-tokens)
+   :class 
+   (concat (list 
+            (re-token #"[a-zA-Z_][A-Za-z_0-9]*" :class))
+           java-sub-tokens
+           java-default-tokens)
+   :string1 (list
+             (re-token #"[^\"\\]+" :string)
+             (token (str-matcher "\"") :string :pop)
+             (re-token #"\\(?:[bfnrtv\n\"'\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))
+   :string2 (list
+             (re-token #"[^'\\]+" :string)
+             (token (str-matcher "'") :string :pop)
+             (re-token #"\\(?:[bfnrtv\n\"'\\]|x[a-fA-F0-9]{1,2}|[0-7]{1,3}|u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8})" :string))})

@@ -2,9 +2,9 @@
 
 (def didgets "0123456789abcdefghijklmnopqrstuvwxyz")
 
-(def *do-profile* false)
+(def ^:dynamic *do-profile* false)
 
-(def *profile* (agent {}))
+(def ^:dynamic *profile* (agent {}))
 
 (defn- prof [a idx time]
   (update-in a [idx] conj time))
@@ -40,25 +40,39 @@
 (defn token [matcher kind & [new-state info-fn]]
   (cond
    (nil? new-state)
-   (fn [string idx states token-def]
-     (if-let [token (matcher string idx)]
-       [[kind token (if info-fn (info-fn kind token states) {:state states :index idx})] states token-def ((first states) token-def)]))
+   (if info-fn
+     (fn [string idx states token-def]
+       (if-let [token (matcher string idx)]
+         [[kind token #_(info-fn kind token states)] states token-def ((first states) token-def)]))
+     (fn [string idx states token-def]
+       (if-let [token (matcher string idx)]
+         [[kind token #_{:state states :index idx}] states token-def ((first states) token-def)])))
    (= new-state :pop)
-   (fn [string idx states token-def]
-     (if-let [token (matcher string idx)]
-       (let [sts (next states)]
-	 [[kind token (if info-fn (info-fn kind token states) {:state states :index idx})] sts token-def ((first sts) token-def)])))
+   (if info-fn
+     (fn [string idx states token-def]
+       (if-let [token (matcher string idx)]
+         (let [sts (next states)]
+           [[kind token #_(info-fn kind token states)] sts token-def ((first sts) token-def)])))
+     (fn [string idx states token-def]
+       (if-let [token (matcher string idx)]
+         (let [sts (next states)]
+           [[kind token #_{:state states :index idx}] sts token-def ((first sts) token-def)]))))
    :else
-   (fn [string idx states token-def]
+   (if info-fn
+     (fn [string idx states token-def]
      (if-let [token (matcher string idx)]
        (let [sts (conj states new-state)]
-	 [[kind token (if info-fn (info-fn kind token states) {:state states :index idx})] sts token-def ((first sts) token-def)])))))
+	 [[kind token #_(info-fn kind token states)] sts token-def ((first sts) token-def)])))
+     (fn [string idx states token-def]
+     (if-let [token (matcher string idx)]
+       (let [sts (conj states new-state)]
+	 [[kind token #_{:state states :index idx}] sts token-def ((first sts) token-def)]))))))
 
 
-(defn re-token [re kind & [new-state]]
-  (let [pattern (re-pattern (str "^(?:" re ")"))]
-    (token 
-     (fn [string idx]
-       (re-find pattern (subs string idx)))
-     kind
-     new-state)))
+(defmacro re-token [re kind & [new-state]]
+  `(let [pattern# (re-pattern (str "^(?:" ~re ")"))]
+     (token 
+      (fn ~(symbol (str (name kind) "-token")) [string# idx#]
+        (re-find pattern# (subs string# idx#)))
+      ~kind
+      ~(if new-state new-state))))

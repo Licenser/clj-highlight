@@ -21,44 +21,20 @@
 			     num
 			     nil))))
       ]
-  (def clj-syntax
-       {:keywords clojure-keywords
-	:initial
-	(list
-;	 (fn space-token [string idx states token-def] (
-	 (re-token #"[\s\n,]++" :space)
-;							string idx states token-def))
-;	 (fn paren-token [string idx states token-def] (
-	 (re-token #"[()\[\]{}]" :paren)
-;							string idx states token-def))
-;	 (fn ident-token [string idx states token-def] (
-	 (re-token identifier* :identifier) 
-;							string idx states token-def))
-;	 (fn ident2-token [string idx states token-def] (
-	 (re-token #"\.++" :identifier)
-;							 string idx states token-def))
-;	 (fn sym-token [string idx states token-def] (
-	 (re-token symbol* :symbol)
-;						      string idx states token-def))
-;	 (fn sym2-token [string idx states token-def] (
-	 (re-token #"::?\(.++" :symbol)
-;						       string idx states token-def))
-;	 (fn num-token [string idx states token-def] (
-	 (token number-matcher :number)
-;						      string idx states token-def))
-;	 (fn op-token [string idx states token-def] (
-	 (re-token #"[#.'`~@^]++" :operator)
-;						     string idx states token-def))
-;	 (fn char-token [string idx states token-def] (
-	 (re-token #"\"[^\"\\]*(?:[^\"\\]|\\.)*+\"" :string)
-;						       string idx states token-def))
-;	 (fn ident3-token [string idx states token-def] (
-	 (re-token #"/" :identifier)
-;							 string idx states token-def))
-;	 (fn comm-token [string idx states token-def] (
-	 (re-token #";[^\n]*+" :comment)
-;						       string idx states token-def))
-;	 (fn str-token [string idx states token-def] (
-	 (re-token #"\\(?:.|[a-z]++)" :string)
-;						      string idx states token-def))
-	 )}))
+  (def syntax
+    {:keywords clojure-keywords
+     :syntax-name "Clojure"
+     :initial
+     (list
+      (re-token #"[\s\n,]++" :space)
+      (re-token #"[()\[\]{}]" :paren)
+      (re-token identifier* :identifier) 
+      (re-token #"\.++" :identifier)
+      (re-token symbol* :symbol)
+      (re-token #"::?\(.++" :symbol)
+      (token number-matcher :number)
+      (re-token #"[#.'`~@^]++" :operator)
+      (re-token #"\"[^\"\\]*(?:[^\"\\]|\\.)*+\"" :string)
+      (re-token #"/" :identifier)
+      (re-token #";[^\n]*+" :comment)
+      (re-token #"\\(?:.|[a-z]++)" :string))}))
