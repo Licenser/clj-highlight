@@ -1,4 +1,4 @@
-(ns clj-highlight.test
+(ns clj-highlight.benchmark
   (:require
    [clj-highlight.syntax.java :as java]
    [clj-highlight.syntax.clojure :as clj]
