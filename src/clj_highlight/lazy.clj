@@ -1,13 +1,13 @@
 (ns clj-highlight.lazy
   (:use clj-highlight.mangler)
-  (:use clj-highlight.general))
+  (:use [clj-highlight.syntax.general :only [next-token]]))
 
-(defn- token-seq* [s idx size token-def defs states] 
+(defn- token-seq* [s idx size syntax states] 
   (lazy-seq
    (if (= idx size)
      '()
-     (let [[token states token-def defs] (next-token s idx token-def defs states)]
-       (cons token (token-seq* s (+ idx (count (fnext token))) size token-def defs states))))))
+     (let [[token states] (next-token s idx syntax states)]
+       (cons token (token-seq* s (+ idx (count (fnext token))) size syntax states))))))
 
 (defn tokenizer
   "Creates a tokenizer for a given syntax definition."
@@ -15,7 +15,7 @@
   (let [tkn
     	(fn tokenizer*
 	  ([^String string state]
-	     (token-seq* string 0 (count string) syntax (get syntax state) (list state)))
+	     (token-seq* string 0 (count string) syntax (list state)))
 	  ([^String string]
 	  (tokenizer* string :initial)))]
     (if-let [keywords (:keywords syntax)]

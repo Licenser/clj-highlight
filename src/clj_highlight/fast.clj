@@ -1,6 +1,6 @@
 (ns clj-highlight.fast
   (:use clj-highlight.mangler)
-  (:use clj-highlight.general))
+  (:use [clj-highlight.syntax.general :only [next-token]]))
 
 (defn tokenizer
   "Creates a instant tokenizer for a given syntax definition.
@@ -10,15 +10,14 @@ This is not lazy but optimized for performance."
     	(fn tokenizer*
 	  ([^String string state]
              (let [size (count string)]
-               (loop [tokens (transient [])
+               (loop [tokens (transient []) 
                       idx 0
-                      token-def syntax
-                      defs (get syntax state)
                       states (list state)]
-                 (let [[token states token-def defs] (next-token string idx token-def (get syntax state) states)]
+                 (let [state (first states)
+                       [token states :as res] (next-token string idx syntax states)]
                    (if (= idx size)
                      (persistent! tokens)
-                     (recur (conj! tokens token) (+ idx (count (fnext token))) token-def defs states))))))
+                     (recur (conj! tokens token) (+ idx (count (second token))) states))))))
 	  ([^String string]
              (tokenizer* string :initial)))]
     (if-let [keywords (:keywords syntax)]

@@ -2,7 +2,7 @@
   (:use clj-highlight.mangler))
 
 ; Copied from hiccup.
-(defn- escape-html
+(defn escape-html
   "Change special characters into HTML character entities."
   [text]
   (.. #^String (str text)
@@ -48,7 +48,7 @@
 (def newline-to-br-mangler 
      (new-mangler
       :space
-      (fn [k t s]
+      (fn [k ^String t s]
 	[k (.replace t "\n" "<br/>") s])))
 
 (def html-escape-mangler 

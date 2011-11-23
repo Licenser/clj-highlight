@@ -4,6 +4,7 @@
    [clj-highlight.syntax.clojure :as clj]
    [clj-highlight.fast :as fast]
    [clj-highlight.lazy :as lazy])
+  (:use clj-highlight.syntax.general)
   (:gen-class))
 
 
@@ -20,24 +21,31 @@
 (defn evaluate [in-file [tkns t]]
   (let [c (count tkns)
         e (count (filter #(= :error (first %)) tkns))]
-    (println "\n  Parsed" in-file "with" c "tokens " (str "(" e " errors)") "in" (str t "ms (" (int (/ c t)) " kTok/s)." ))))
+    (println "\n  Parsed" in-file "with" c "tokens" (str "(" e " errors)") "in" (str t "ms (" (int (/ c t)) " kTok/s)." ))))
 
-(defn test-scanner-fast [syntax in-file n]
+(defn benchmark-scanner-fast [syntax in-file n]
      (let [code (slurp in-file)]
        (print "Timing" (:syntax-name syntax) "scanner in fast mode")
-       (evaluate in-file (time-method (fn [] ((fast/highlighter syntax identity) code)) n))))
+       (evaluate in-file (time-method (fn [] ((fast/tokenizer syntax) code)) n))))
 
-(defn test-scanner-lazy [syntax in-file n]
+(defn benchmark-scanner-lazy [syntax in-file n]
      (let [code (slurp in-file)]
        (print "Timing" (:syntax-name syntax) "scanner in lazy mode")
-       (evaluate in-file (time-method (fn [] (doall ((lazy/highlighter syntax identity) code))) n))))
+       (evaluate in-file (time-method (fn [] (doall ((lazy/tokenizer syntax) code))) n))))
 
 (defn -main []
-  (test-scanner-lazy java/syntax "benchmarks/jruby.in.java" 1)
-  (test-scanner-lazy clj/syntax "benchmarks/core.clj" 20)
-  (test-scanner-fast clj/syntax "benchmarks/core.clj" 20))
+  (benchmark-scanner-lazy java/syntax "benchmarks/jruby.in.java" 1)
+  (benchmark-scanner-fast java/syntax "benchmarks/jruby.in.java" 1)
+  (benchmark-scanner-lazy clj/syntax "benchmarks/core.clj" 1)
+  (benchmark-scanner-fast clj/syntax "benchmarks/core.clj" 1))
 
 
+(def test-syntax
+  {:initial [(re-token #"a" :a :b)
+             (re-token #"d" :d :c)
+             (include :c)]
+   :b [(re-token #"b" :b :pop)]
+   :c [(re-token #"c" :c)]})
 
 ;(comment 
 ;  (def code (slurp "src/clj_highlight/syntax/clojure.clj"))

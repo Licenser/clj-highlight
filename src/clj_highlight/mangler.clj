@@ -4,9 +4,9 @@
   (fn mangle-tokens*
     ([string state]
        (map (fn [[k t s]]
-	 (if (or (nil? kind) (= k kind))
-	   (mangle-fn k t s)
-	   [k t s]))
+              (if (or (nil? kind) (= k kind))
+                (mangle-fn k t s)
+                [k t s]))
 	    (tokenizer string state)))
     ([string]
        (mangle-tokens* string :initial))))
