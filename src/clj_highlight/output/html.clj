@@ -14,5 +14,3 @@
 	(if-let [[f & n] (next tokenstream)]
 	  (recur f n))))
     (print "</span>")))
-
-*
